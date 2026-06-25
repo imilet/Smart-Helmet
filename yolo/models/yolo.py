@@ -146,7 +146,7 @@ class Model(nn.Module):
     def fuse(self):  # fuse model Conv2d() + BatchNorm2d() layers
         print('Fusing layers... ', end='')
         for m in self.model.modules():
-            if type(m) is Conv:
+            if type(m) is Conv and m.bn is not None:
                 m.conv = torch_utils.fuse_conv_and_bn(m.conv, m.bn)  # update conv
                 m.bn = None  # remove batchnorm
                 m.forward = m.fuseforward  # update forward

@@ -3,7 +3,6 @@ from typing import List
 
 import torch
 
-from legacy_imports import use_legacy_package
 from yolo.models.experimental import attempt_load
 from yolo.utils import torch_utils
 from yolo.utils.datasets import letterbox
@@ -32,7 +31,6 @@ class HelmetDetector:
         self._load_model()
 
     def _load_model(self) -> None:
-        use_legacy_package("yolo")
         self.device = torch_utils.select_device(self.device_name)
         self.model = attempt_load(self.weights, map_location=self.device)
         self.img_size = check_img_size(self.img_size, s=self.model.stride.max())

@@ -115,7 +115,10 @@ def attempt_load(weights, map_location=None):
     model = Ensemble()
     for w in weights if isinstance(weights, list) else [weights]:
         attempt_download(w)
-        model.append(torch.load(w, map_location=map_location)['model'].float().fuse().eval())  # load FP32 model
+        loaded = torch.load(w, map_location=map_location)['model'].float()
+        if _needs_fuse(loaded):
+            loaded = loaded.fuse()
+        model.append(loaded.eval())  # load FP32 model
 
     # Compatibility updates
     for m in model.modules():
@@ -131,3 +134,7 @@ def attempt_load(weights, map_location=None):
         for k in ['names', 'stride']:
             setattr(model, k, getattr(model[-1], k))
         return model  # return ensemble
+
+
+def _needs_fuse(model):
+    return any(hasattr(module, 'bn') and module.bn is not None for module in model.modules())

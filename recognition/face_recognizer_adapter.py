@@ -5,7 +5,6 @@ import cv2
 import numpy as np
 import torch
 
-from legacy_imports import use_legacy_package
 from face.models.experimental import attempt_load
 from face.utils.datasets import letterbox
 from face.utils.general import non_max_suppression_face, scale_coords
@@ -32,7 +31,6 @@ class FaceRecognizerAdapter:
         self.conf_thres = conf_thres
         self.iou_thres = iou_thres
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        use_legacy_package("face")
         self.face_detector = attempt_load(self.yolov5_face_weights, map_location=self.device).eval()
         self.feature_model = torch.jit.load(self.mobilefacenet_model_path, map_location=self.device).eval()
         self.face_db = self._load_face_db()
