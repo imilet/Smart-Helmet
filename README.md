@@ -2,20 +2,24 @@
 
 图片/视频文件安全帽检测 + 人脸识别。
 
+项目内已包含推理所需源码、模型和默认人脸库，不依赖外部参考项目源码。
+
 ## 环境
 
-当前项目已创建本地虚拟环境：
+使用已有 conda 环境：
 
 ```bash
-source helmet/bin/activate
+conda activate y8face_cpu
 ```
+
+已验证该环境可导入 `torch`、`cv2`、`numpy`，并能加载安全帽检测和人脸识别模型。
 
 ## 模型文件
 
-- 安全帽检测：`helmet_head_person_s.pt`
+- 安全帽检测：`weights/helmet_head_person_s.pt`
 - 人脸检测：`weights/face_yolov5n_0_5.pt`
 - 人脸识别：`weights/mobilefacenet.pth`
-- 默认人脸库：`/home/lowkeng/code/LVAN/Pytorch-MobileFaceNet/face_db`
+- 默认人脸库：`face_db`
 
 安全帽类别为：
 
@@ -26,7 +30,7 @@ person, head, helmet
 ## 图片检测
 
 ```bash
-PYTHONPATH=. MPLCONFIGDIR=/tmp ./helmet/bin/python detect.py \
+PYTHONPATH=. MPLCONFIGDIR=/tmp python detect.py \
   --source /path/to/input.jpg \
   --output runs/output \
   --device cpu
@@ -35,7 +39,7 @@ PYTHONPATH=. MPLCONFIGDIR=/tmp ./helmet/bin/python detect.py \
 ## 视频检测
 
 ```bash
-PYTHONPATH=. MPLCONFIGDIR=/tmp ./helmet/bin/python detect.py \
+PYTHONPATH=. MPLCONFIGDIR=/tmp python detect.py \
   --source /path/to/input.mp4 \
   --output runs/output \
   --device cpu
@@ -44,7 +48,8 @@ PYTHONPATH=. MPLCONFIGDIR=/tmp ./helmet/bin/python detect.py \
 ## 测试
 
 ```bash
-PYTHONPATH=. ./helmet/bin/python tests/test_association.py
+PYTHONPATH=. python tests/test_association.py
+PYTHONPATH=. python tests/test_project_independence.py
 ```
 
 ## 当前规则

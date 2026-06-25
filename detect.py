@@ -17,15 +17,14 @@ def parse_args():
     parser = argparse.ArgumentParser(description="图片/视频安全帽检测 + 人脸识别")
     parser.add_argument("--source", required=True, help="输入图片或视频路径")
     parser.add_argument("--output", default="runs/output", help="输出目录")
-    parser.add_argument("--helmet-weights", default="helmet_head_person_s.pt", help="安全帽检测权重")
+    parser.add_argument("--helmet-weights", default="weights/helmet_head_person_s.pt", help="安全帽检测权重")
     parser.add_argument("--device", default="cpu", help="推理设备，例如 cpu 或 0")
-    parser.add_argument("--face-db", default="/home/lowkeng/code/LVAN/Pytorch-MobileFaceNet/face_db", help="人脸库目录")
+    parser.add_argument("--face-db", default="face_db", help="人脸库目录")
     parser.add_argument("--face-threshold", type=float, default=0.6, help="人脸识别相似度阈值")
     return parser.parse_args()
 
 
 def build_models(args):
-    # 先加载人脸模型，再加载安全帽模型，避免两个参考项目的 models/utils 同名导入串包。
     face_recognizer = FaceRecognizerAdapter(
         face_db_path=args.face_db,
         threshold=args.face_threshold,

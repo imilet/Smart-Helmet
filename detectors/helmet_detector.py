@@ -1,18 +1,20 @@
-import sys
 from pathlib import Path
 from typing import List
 
 import torch
 
+from legacy_imports import use_legacy_package
+from yolo.models.experimental import attempt_load
+from yolo.utils import torch_utils
+from yolo.utils.datasets import letterbox
+from yolo.utils.utils import check_img_size, non_max_suppression, scale_coords
 from schemas import Detection
-
-SMART_CONSTRUCTION_ROOT = Path("/home/lowkeng/code/LVAN/Smart_Construction-master")
 
 
 class HelmetDetector:
     def __init__(
         self,
-        weights: str = "helmet_head_person_s.pt",
+        weights: str = "weights/helmet_head_person_s.pt",
         img_size: int = 640,
         conf_thres: float = 0.4,
         iou_thres: float = 0.5,
@@ -30,11 +32,7 @@ class HelmetDetector:
         self._load_model()
 
     def _load_model(self) -> None:
-        _ensure_reference_path(SMART_CONSTRUCTION_ROOT)
-        from models.experimental import attempt_load
-        from utils.utils import check_img_size
-        from utils import torch_utils
-
+        use_legacy_package("yolo")
         self.device = torch_utils.select_device(self.device_name)
         self.model = attempt_load(self.weights, map_location=self.device)
         self.img_size = check_img_size(self.img_size, s=self.model.stride.max())
@@ -44,9 +42,6 @@ class HelmetDetector:
         self.names = self.model.module.names if hasattr(self.model, "module") else self.model.names
 
     def detect(self, image) -> List[Detection]:
-        from utils.datasets import letterbox
-        from utils.utils import non_max_suppression, scale_coords
-
         img = letterbox(image, new_shape=self.img_size)[0]
         img = img[:, :, ::-1].transpose(2, 0, 1)
         img = img.copy()
@@ -82,18 +77,3 @@ class HelmetDetector:
                 )
             )
         return detections
-
-
-def _ensure_reference_path(path: Path) -> None:
-    if not path.exists():
-        raise FileNotFoundError(f"参考项目不存在: {path}")
-    for module_name in list(sys.modules):
-        if module_name == "models" or module_name.startswith("models."):
-            del sys.modules[module_name]
-        if module_name == "utils" or module_name.startswith("utils."):
-            del sys.modules[module_name]
-    path_str = str(path)
-    if path_str in sys.path:
-        sys.path.remove(path_str)
-    if path_str not in sys.path:
-        sys.path.insert(0, path_str)
