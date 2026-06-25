@@ -5,9 +5,10 @@ import cv2
 import numpy as np
 import torch
 
+from common_yolo.geometry import scale_coords
+from common_yolo.image import letterbox
 from face.models.experimental import attempt_load
-from face.utils.datasets import letterbox
-from face.utils.general import non_max_suppression_face, scale_coords
+from face.utils.general import non_max_suppression_face
 from face.utils_face import load_image, norm_crop, scale_coords_landmarks
 from schemas import FaceIdentity
 

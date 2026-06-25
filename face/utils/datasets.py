@@ -1017,3 +1017,5 @@ def autosplit(path='../coco128', weights=(0.9, 0.1, 0.0)):  # from face.utils.da
         if img.suffix[1:] in img_formats:
             with open(path / txt[i], 'a') as f:
                 f.write(str(img) + '\n')  # add image to txt file
+
+from common_yolo.image import letterbox as letterbox

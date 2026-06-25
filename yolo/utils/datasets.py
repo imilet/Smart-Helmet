@@ -14,6 +14,7 @@ from PIL import Image, ExifTags
 from torch.utils.data import Dataset
 from tqdm import tqdm
 
+from common_yolo.image import letterbox
 from yolo.utils.utils import xyxy2xywh, xywh2xyxy, torch_distributed_zero_first
 
 help_url = 'https://github.com/ultralytics/yolov5/wiki/Train-Custom-Data'
@@ -893,3 +894,5 @@ def create_folder(path='./new'):
     if os.path.exists(path):
         shutil.rmtree(path)  # delete output folder
     os.makedirs(path)  # make new output folder
+
+from common_yolo.image import letterbox as letterbox

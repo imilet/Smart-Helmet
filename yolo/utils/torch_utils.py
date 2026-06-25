@@ -217,3 +217,5 @@ class ModelEMA:
     def update_attr(self, model, include=(), exclude=('process_group', 'reducer')):
         # Update EMA attributes
         copy_attr(self.ema, model, include, exclude)
+
+from common_yolo.torch_utils import time_synchronized as time_synchronized, fuse_conv_and_bn as fuse_conv_and_bn

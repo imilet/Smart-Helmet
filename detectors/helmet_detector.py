@@ -3,10 +3,11 @@ from typing import List
 
 import torch
 
+from common_yolo.geometry import check_img_size, scale_coords
+from common_yolo.image import letterbox
 from yolo.models.experimental import attempt_load
 from yolo.utils import torch_utils
-from yolo.utils.datasets import letterbox
-from yolo.utils.utils import check_img_size, non_max_suppression, scale_coords
+from yolo.utils.utils import non_max_suppression
 from schemas import Detection
 
 
