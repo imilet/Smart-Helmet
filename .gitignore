@@ -1,5 +1,5 @@
 .conda_envs/
-helmet/
+/helmet/
 runs/
 
 __pycache__/
