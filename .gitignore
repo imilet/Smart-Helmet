@@ -2,6 +2,9 @@
 /helmet/
 runs/
 
+weights/*
+!weights/.gitkeep
+
 __pycache__/
 *.py[cod]
 *.pyo
