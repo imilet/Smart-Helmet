@@ -4,13 +4,21 @@
 
 ## 环境
 
-使用已有 conda 环境：
+建议使用 conda 新建独立环境：
 
 ```bash
-conda activate y8face_cpu
+conda create -n helmet python=3.10 -y
+conda activate helmet
+pip install -r requirements.txt
 ```
 
-已验证该环境可导入 `torch`、`cv2`、`numpy`，并能加载安全帽检测和人脸识别模型。
+如果本机需要 CUDA 版本的 PyTorch，请先按显卡和 CUDA 版本安装对应的 `torch`，再安装其余依赖。
+
+安装后可执行以下命令确认基础依赖可用：
+
+```bash
+python -c "import torch, cv2, numpy; print('ok')"
+```
 
 ## 模型文件
 
