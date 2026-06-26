@@ -25,6 +25,15 @@ def overlap_ratio(inner: Box, outer: Box) -> float:
     return intersection_area(inner, outer) / area
 
 
+def box_center(box: Box) -> tuple[float, float]:
+    x1, y1, x2, y2 = box
+    return (x1 + x2) / 2, (y1 + y2) / 2
+
+
+def clamp01(value: float) -> float:
+    return max(0.0, min(1.0, value))
+
+
 def expand_head_region(box: Box) -> Box:
     x1, y1, x2, y2 = box
     width = x2 - x1
@@ -40,25 +49,55 @@ def expand_head_region(box: Box) -> Box:
 
 def find_matching_head(face: FaceIdentity, heads: Iterable[Detection]) -> Optional[Detection]:
     best_head = None
-    best_overlap = 0.0
+    best_score = 0.0
     for head in heads:
-        ratio = overlap_ratio(face.box, head.box)
-        if ratio > best_overlap:
-            best_overlap = ratio
+        score = score_head_match(face, head)
+        if score > best_score:
+            best_score = score
             best_head = head
-    if best_overlap >= 0.35:
+    if best_score >= 0.45:
         return best_head
     return None
 
 
+def score_head_match(face: FaceIdentity, head: Detection) -> float:
+    face_overlap = overlap_ratio(face.box, head.box)
+    face_cx, face_cy = box_center(face.box)
+    head_cx, head_cy = box_center(head.box)
+    head_width = max(1.0, head.box[2] - head.box[0])
+    head_height = max(1.0, head.box[3] - head.box[1])
+    center_distance = abs(face_cx - head_cx) / head_width + abs(face_cy - head_cy) / head_height
+    center_score = clamp01(1.0 - center_distance / 1.2)
+    return 0.65 * face_overlap + 0.25 * center_score + 0.10 * clamp01(head.confidence)
+
+
 def has_nearby_helmet(region: Box, helmets: Iterable[Detection]) -> bool:
-    search_region = expand_head_region(region)
+    best_score = 0.0
     for helmet in helmets:
-        if overlap_ratio(helmet.box, search_region) >= 0.2:
-            return True
-        if overlap_ratio(search_region, helmet.box) >= 0.2:
-            return True
-    return False
+        best_score = max(best_score, score_helmet_match(region, helmet))
+    return best_score >= 0.60
+
+
+def score_helmet_match(region: Box, helmet: Detection) -> float:
+    search_region = expand_head_region(region)
+    helmet_overlap = overlap_ratio(helmet.box, search_region)
+    region_overlap = overlap_ratio(search_region, helmet.box)
+    overlap_score = max(helmet_overlap, region_overlap)
+
+    region_cx, region_cy = box_center(region)
+    helmet_cx, helmet_cy = box_center(helmet.box)
+    region_width = max(1.0, region[2] - region[0])
+    region_height = max(1.0, region[3] - region[1])
+    horizontal_score = clamp01(1.0 - abs(helmet_cx - region_cx) / (region_width * 0.9))
+    vertical_offset = (region_cy - helmet_cy) / region_height
+    upper_score = clamp01((vertical_offset + 0.2) / 0.8)
+
+    return (
+        0.45 * overlap_score
+        + 0.25 * upper_score
+        + 0.20 * horizontal_score
+        + 0.10 * clamp01(helmet.confidence)
+    )
 
 
 def associate_faces_with_helmets(

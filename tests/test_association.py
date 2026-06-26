@@ -41,6 +41,30 @@ class AssociationTest(unittest.TestCase):
         self.assertEqual(results[0].name, "unknown")
         self.assertTrue(results[0].has_helmet)
 
+    def test_helmet_below_face_is_not_associated_even_if_search_region_overlaps(self):
+        faces = [FaceIdentity(name="王五", confidence=0.81, box=(100, 100, 150, 170))]
+        detections = [
+            Detection(class_name="head", confidence=0.9, box=(95, 92, 155, 178)),
+            Detection(class_name="helmet", confidence=0.94, box=(90, 145, 160, 205)),
+        ]
+
+        results = associate_faces_with_helmets(faces, detections)
+
+        self.assertEqual(len(results), 1)
+        self.assertFalse(results[0].has_helmet)
+
+    def test_reasonable_upper_helmet_is_associated_when_head_overlap_is_slightly_low(self):
+        faces = [FaceIdentity(name="赵六", confidence=0.79, box=(100, 100, 150, 170))]
+        detections = [
+            Detection(class_name="head", confidence=0.92, box=(90, 70, 160, 145)),
+            Detection(class_name="helmet", confidence=0.88, box=(86, 48, 164, 94)),
+        ]
+
+        results = associate_faces_with_helmets(faces, detections)
+
+        self.assertEqual(len(results), 1)
+        self.assertTrue(results[0].has_helmet)
+
 
 if __name__ == "__main__":
     unittest.main()
